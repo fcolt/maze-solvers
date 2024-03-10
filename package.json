@@ -4,8 +4,8 @@
   "private": true,
   "homepage": "http://primaryobjects.github.io/maze-generator",
   "dependencies": {
-    "react": "^15.5.4",
-    "react-dom": "^15.5.4"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "react-scripts": "0.9.5"

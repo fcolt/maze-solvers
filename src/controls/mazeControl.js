@@ -1,109 +1,105 @@
-import React, { Component } from 'react';
-import { MazeManager } from './managers/mazeManager.js';
+import React, { useState, useEffect } from "react";
+import { MazeManager } from "./managers/mazeManager.js";
 
-export default class mazeControl extends Component {
-  constructor(props) {
-    super(props);
+const MazeControl = (props) => {
+  const [grid, setGrid] = useState([]);
+  const [width, setWidth] = useState(props.width);
+  const [height, setHeight] = useState(props.height);
 
-    MazeManager.initialize(this.props.width, this.props.height);
-    
-    this.state = {
-      grid: this.props.type && this.props.type.toLowerCase() === 'ascii' ? MazeManager.toString() : this.gridElements(),
-      width: this.props.width,
-      height: this.props.height
-    };
-    
-    this.redraw = this.redraw.bind(this);
-  }
+  const gridElements = () => {
+    const elements = [];
 
-  ascii() {
-    this.setState({ grid: MazeManager.toString() });
-  }
-  
-  grid() {
-    this.setState({ grid: this.gridElements() });
-  }
-
-  gridElements() {
-    var elements = [];
-    
     // Top border.
-    for (var i=0; i<=MazeManager.grid[0].length * 2; i++) {
-      elements.push(<div className='cell closed'></div>);
+    for (let i = 0; i <= MazeManager.grid[0].length * 2; i++) {
+      elements.push(<div className="cell closed"></div>);
     }
-    
-    elements.push(<div className='clear'></div>);
-    
+
+    elements.push(<div className="clear"></div>);
+
     // Main grid.
-    for (var y=0; y<MazeManager.grid.length; y++) {
-      var passageRow = [];
-      
+    for (let y = 0; y < MazeManager.grid.length; y++) {
+      const passageRow = [];
+
       // Left border column.
-      elements.push(<div className='cell closed'></div>);
-      passageRow.push(<div className='cell closed'></div>);
-    
+      elements.push(<div className="cell closed"></div>);
+      passageRow.push(<div className="cell closed"></div>);
+
       // Rooms. Note, we only need to check south and east (because north and west have borders already included).
-      for (var x=0; x<MazeManager.grid[0].length; x++) {
+      for (let x = 0; x < MazeManager.grid[0].length; x++) {
         // Add a cell for the room.
-        elements.push(<div className='cell open'></div>);
-        
-        if ((MazeManager.grid[y][x] & MazeManager.DIRECTION.BOTTOM) === MazeManager.DIRECTION.BOTTOM) {
+        elements.push(<div className="cell open"></div>);
+
+        if (
+          (MazeManager.grid[y][x] & MazeManager.DIRECTION.BOTTOM) ===
+          MazeManager.DIRECTION.BOTTOM
+        ) {
           // Open a passage to the south.
-          passageRow.push(<div className='cell open'></div>);
-        }
-        else {
+          passageRow.push(<div className="cell open"></div>);
+        } else {
           // Close a passage to the south.
-          passageRow.push(<div className='cell closed'></div>);
+          passageRow.push(<div className="cell closed"></div>);
         }
 
         // Add closed passage to next row between rooms.
-        passageRow.push(<div className='cell closed'></div>);
-        
-        if ((MazeManager.grid[y][x] & MazeManager.DIRECTION.RIGHT) === MazeManager.DIRECTION.RIGHT) {
+        passageRow.push(<div className="cell closed"></div>);
+
+        if (
+          (MazeManager.grid[y][x] & MazeManager.DIRECTION.RIGHT) ===
+          MazeManager.DIRECTION.RIGHT
+        ) {
           // Open a passage to the east.
-          elements.push(<div className='cell open'></div>);
-        }
-        else {
+          elements.push(<div className="cell open"></div>);
+        } else {
           // Close a passage to the east.
-          elements.push(<div className='cell closed'></div>);
+          elements.push(<div className="cell closed"></div>);
         }
       }
-    
-      elements.push(<div className='clear'></div>);
-      passageRow.push(<div className='clear'></div>);
-      
+
+      elements.push(<div className="clear"></div>);
+      passageRow.push(<div className="clear"></div>);
+
       // Append passages row to elements.
       elements.push.apply(elements, passageRow);
     }
-    
-    return elements;
-  }
-  
-  redraw(event) {
-    MazeManager.initialize(this.state.width, this.state.height);
 
-    if (this.props.type && this.props.type.toLowerCase() === 'ascii') {
-      this.ascii();
+    return elements;
+  };
+
+  const redraw = () => {
+    MazeManager.initialize(width, height);
+
+    if (!props.type) {
+      return;
     }
-    else {
-      this.grid();
+
+    if (props.type.toLowerCase() === "ascii") {
+      setGrid(MazeManager.toString());
+    } else {
+      setGrid(gridElements());
     }
-  }
-  
-  componentWillReceiveProps(nextProps) {
-    // Update maze when width or height property changes.
-    this.setState({ width: nextProps.width, height: nextProps.height }, function() {
-      this.redraw();
-    });
-  }
-  
-  render() {
-    return (
-      <div className='maze'>
-        <div className={ (this.props.type && this.props.type.toLowerCase() === 'ascii' ? 'pre' : '') }>
-          { this.state.grid }
-        </div>
+  };
+
+  useEffect(() => {
+    MazeManager.initialize(width, height);
+    redraw();
+  }, [props.grid, props.type]);
+
+  useEffect(() => {
+    setWidth(props.width);
+    setHeight(props.height);
+  }, [props.width, props.height]);
+
+  return (
+    <div className="maze center">
+      <div
+        className={
+          props.type && props.type.toLowerCase() === "ascii" ? "pre" : ""
+        }
+      >
+        {grid}
       </div>
-    );
-  }  
+    </div>
+  );
 };
+
+export default MazeControl;
