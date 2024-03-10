@@ -22,6 +22,10 @@
   background-color: #fff;
 }
 
+.maze .cell.path {
+  background-color: blue
+}
+
 .clear {
   clear: both;
 }

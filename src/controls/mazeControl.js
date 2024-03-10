@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { MazeManager } from "./managers/mazeManager.js";
+import MazeGenerator from "./managers/mazeGenerator.js";
+import MazeSolver from "./managers/mazeSolver.js";
 
 const CELL_TYPE_TO_JSX = {
-  [MazeManager.CELL.OPEN]: <div className="cell open"></div>,
-  [MazeManager.CELL.CLOSED]: <div className="cell closed"></div>,
-  [MazeManager.CELL.CLEAR]: <div className="clear"></div>,
+  [MazeGenerator.CELL.OPEN]: <div className="cell open"></div>,
+  [MazeGenerator.CELL.CLOSED]: <div className="cell closed"></div>,
+  [MazeGenerator.CELL.CLEAR]: <div className="clear"></div>,
+  [MazeGenerator.CELL.PATH]: <div className="cell path"></div>,
 };
 
 const MazeControl = (props) => {
@@ -13,25 +15,41 @@ const MazeControl = (props) => {
   const [height, setHeight] = useState(props.height);
 
   const redraw = () => {
-    MazeManager.initialize(width, height);
+    MazeGenerator.initialize(width, height);
 
     if (!props.type) {
       return;
     }
 
     if (props.type.toLowerCase() === "ascii") {
-      setGrid(MazeManager.toString());
+      setGrid(MazeGenerator.toString());
     } else {
       setGrid(
-        MazeManager.gridElements().map((cell) => {
+        MazeGenerator.gridElements().map((cell) => {
           return CELL_TYPE_TO_JSX[cell];
         })
       );
     }
   };
 
+  const carveDfsSolution = async () => {
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+    const gridElements = MazeGenerator.gridElements();
+    const gridElementsSolved = MazeGenerator.gridElements(
+      MazeSolver.solveDfs()
+    );
+
+    for (const idx in gridElementsSolved) {
+      if (gridElements[idx] !== gridElementsSolved[idx]) {
+        gridElements[idx] = gridElementsSolved[idx];
+        await wait(100);
+        setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
+      }
+    }
+  };
+
   useEffect(() => {
-    MazeManager.initialize(width, height);
+    MazeGenerator.initialize(width, height);
     redraw();
   }, [props.grid, props.type]);
 
@@ -41,13 +59,23 @@ const MazeControl = (props) => {
   }, [props.width, props.height]);
 
   return (
-    <div className="maze center">
-      <div
-        className={
-          props.type && props.type.toLowerCase() === "ascii" ? "pre" : ""
-        }
-      >
-        {grid}
+    <div>
+      <div className="center">
+        <input
+          className="button button-outline"
+          type="button"
+          value="Sovlve (DFS)"
+          onClick={carveDfsSolution}
+        />
+      </div>
+      <div className="maze center">
+        <div
+          className={
+            props.type && props.type.toLowerCase() === "ascii" ? "pre" : ""
+          }
+        >
+          {grid}
+        </div>
       </div>
     </div>
   );
