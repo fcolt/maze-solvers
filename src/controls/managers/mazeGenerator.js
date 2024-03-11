@@ -155,7 +155,7 @@ const MazeGenerator = {
           solutionPath &&
           solutionPath.some((cell) => cell.x === x && cell.y === y);
         if (isPath) {
-          elements.push(MazeGenerator.CELL.PATH); // Mark cell as part of the solution path
+          elements.push({ x: x, y: y }); // Mark cell as part of the solution path
         } else {
           elements.push(MazeGenerator.CELL.OPEN);
         }
@@ -165,12 +165,7 @@ const MazeGenerator = {
           MazeGenerator.DIRECTION.BOTTOM
         ) {
           // Open a passage to the south.
-          const isPath =
-            solutionPath &&
-            solutionPath.some((cell) => cell.x === x && cell.y === y + 1);
-          passageRow.push(
-            isPath ? MazeGenerator.CELL.PATH : MazeGenerator.CELL.OPEN
-          );
+          passageRow.push(isPath ? {x: x, y: y} : MazeGenerator.CELL.OPEN);
         } else {
           // Close a passage to the south.
           passageRow.push(MazeGenerator.CELL.CLOSED);
@@ -184,12 +179,7 @@ const MazeGenerator = {
           MazeGenerator.DIRECTION.RIGHT
         ) {
           // Open a passage to the east.
-          const isPath =
-            solutionPath &&
-            solutionPath.some((cell) => cell.x === x + 1 && cell.y === y);
-          elements.push(
-            isPath ? MazeGenerator.CELL.PATH : MazeGenerator.CELL.OPEN
-          );
+          elements.push(isPath ? {x: x, y: y} : MazeGenerator.CELL.OPEN);
         } else {
           // Close a passage to the east.
           elements.push(MazeGenerator.CELL.CLOSED);

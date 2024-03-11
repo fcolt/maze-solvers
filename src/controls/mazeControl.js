@@ -34,17 +34,22 @@ const MazeControl = (props) => {
 
   const carveDfsSolution = async () => {
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    const gridElements = MazeGenerator.gridElements();
-    const gridElementsSolved = MazeGenerator.gridElements(
-      MazeSolver.solveDfs()
-    );
 
-    for (const idx in gridElementsSolved) {
-      if (gridElements[idx] !== gridElementsSolved[idx]) {
-        gridElements[idx] = gridElementsSolved[idx];
-        await wait(100);
-        setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
-      }
+    const solutionPath = MazeSolver.solveDfs();
+    const gridElements = MazeGenerator.gridElements();
+    const gridElementsSolved = MazeGenerator.gridElements(solutionPath);
+
+    for (const coords of solutionPath.reverse()) {
+      gridElementsSolved
+        .map((el, idx) => {
+          return { el, idx };
+        })
+        .filter(({ el }) => el.x === coords.x && el.y === coords.y)
+        .forEach(({ idx }) => {
+          gridElements[idx] = MazeGenerator.CELL.PATH;
+        });
+      await wait(10);
+      setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
     }
   };
 
