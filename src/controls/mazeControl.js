@@ -1,109 +1,101 @@
-import React, { Component } from 'react';
-import { MazeManager } from './managers/mazeManager.js';
+import React, { useState, useEffect } from "react";
+import MazeGenerator from "./managers/mazeGenerator.js";
+import MazeSolver from "./managers/mazeSolver.js";
 
-export default class mazeControl extends Component {
-  constructor(props) {
-    super(props);
+const CELL_TYPE_TO_JSX = {
+  [MazeGenerator.CELL.OPEN]: <div className="cell open"></div>,
+  [MazeGenerator.CELL.CLOSED]: <div className="cell closed"></div>,
+  [MazeGenerator.CELL.CLEAR]: <div className="clear"></div>,
+  [MazeGenerator.CELL.PATH]: <div className="cell path"></div>,
+};
 
-    MazeManager.initialize(this.props.width, this.props.height);
-    
-    this.state = {
-      grid: this.props.type && this.props.type.toLowerCase() === 'ascii' ? MazeManager.toString() : this.gridElements(),
-      width: this.props.width,
-      height: this.props.height
-    };
-    
-    this.redraw = this.redraw.bind(this);
-  }
+const MazeControl = (props) => {
+  const [grid, setGrid] = useState([]);
+  const [width, setWidth] = useState(props.width);
+  const [height, setHeight] = useState(props.height);
 
-  ascii() {
-    this.setState({ grid: MazeManager.toString() });
-  }
-  
-  grid() {
-    this.setState({ grid: this.gridElements() });
-  }
+  const redraw = () => {
+    MazeGenerator.initialize(width, height);
 
-  gridElements() {
-    var elements = [];
-    
-    // Top border.
-    for (var i=0; i<=MazeManager.grid[0].length * 2; i++) {
-      elements.push(<div className='cell closed'></div>);
+    if (!props.type) {
+      return;
     }
-    
-    elements.push(<div className='clear'></div>);
-    
-    // Main grid.
-    for (var y=0; y<MazeManager.grid.length; y++) {
-      var passageRow = [];
-      
-      // Left border column.
-      elements.push(<div className='cell closed'></div>);
-      passageRow.push(<div className='cell closed'></div>);
-    
-      // Rooms. Note, we only need to check south and east (because north and west have borders already included).
-      for (var x=0; x<MazeManager.grid[0].length; x++) {
-        // Add a cell for the room.
-        elements.push(<div className='cell open'></div>);
-        
-        if ((MazeManager.grid[y][x] & MazeManager.DIRECTION.BOTTOM) === MazeManager.DIRECTION.BOTTOM) {
-          // Open a passage to the south.
-          passageRow.push(<div className='cell open'></div>);
-        }
-        else {
-          // Close a passage to the south.
-          passageRow.push(<div className='cell closed'></div>);
-        }
 
-        // Add closed passage to next row between rooms.
-        passageRow.push(<div className='cell closed'></div>);
-        
-        if ((MazeManager.grid[y][x] & MazeManager.DIRECTION.RIGHT) === MazeManager.DIRECTION.RIGHT) {
-          // Open a passage to the east.
-          elements.push(<div className='cell open'></div>);
-        }
-        else {
-          // Close a passage to the east.
-          elements.push(<div className='cell closed'></div>);
-        }
+    if (props.type.toLowerCase() === "ascii") {
+      setGrid(MazeGenerator.toString());
+    } else {
+      setGrid(
+        MazeGenerator.gridElements().map((cell) => {
+          return CELL_TYPE_TO_JSX[cell];
+        })
+      );
+    }
+  };
+
+
+  const carveSolution = async (solutionPath, delay) => {
+    const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const gridElements = MazeGenerator.gridElements();
+    const gridElementsSolved = MazeGenerator.gridElements(solutionPath);
+
+    for (const coords of solutionPath.reverse()) {
+      gridElementsSolved
+        .map((el, idx) => {
+          return { el, idx };
+        })
+        .filter(({ el }) => el.x === coords.x && el.y === coords.y)
+        .forEach(({ idx }) => {
+          gridElements[idx] = MazeGenerator.CELL.PATH;
+        });
+      if (delay) {
+        await wait(10);
+        setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
       }
-    
-      elements.push(<div className='clear'></div>);
-      passageRow.push(<div className='clear'></div>);
-      
-      // Append passages row to elements.
-      elements.push.apply(elements, passageRow);
     }
-    
-    return elements;
-  }
-  
-  redraw(event) {
-    MazeManager.initialize(this.state.width, this.state.height);
 
-    if (this.props.type && this.props.type.toLowerCase() === 'ascii') {
-      this.ascii();
+    if (!delay) {
+      setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
     }
-    else {
-      this.grid();
-    }
-  }
-  
-  componentWillReceiveProps(nextProps) {
-    // Update maze when width or height property changes.
-    this.setState({ width: nextProps.width, height: nextProps.height }, function() {
-      this.redraw();
-    });
-  }
-  
-  render() {
-    return (
-      <div className='maze'>
-        <div className={ (this.props.type && this.props.type.toLowerCase() === 'ascii' ? 'pre' : '') }>
-          { this.state.grid }
+  };
+
+  useEffect(() => {
+    MazeGenerator.initialize(width, height);
+    redraw();
+  }, [props.grid, props.type]);
+
+  useEffect(() => {
+    setWidth(props.width);
+    setHeight(props.height);
+  }, [props.width, props.height]);
+
+  return (
+    <div>
+      <div className="center">
+        <input
+          className="button button-outline"
+          type="button"
+          value="Solve with DFS"
+          onClick={() => carveSolution(MazeSolver.solveDfs(), false)}
+        />
+        <input
+          className="button button-outline"
+          type="button"
+          value="Watch DFS"
+          onClick={() => carveSolution(MazeSolver.solveDfs(), true)}
+        />
+      </div>
+      <div className="maze center">
+        <div
+          className={
+            props.type && props.type.toLowerCase() === "ascii" ? "pre" : ""
+          }
+        >
+          {grid}
         </div>
       </div>
-    );
-  }  
+    </div>
+  );
 };
+
+export default MazeControl;

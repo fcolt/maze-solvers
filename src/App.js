@@ -1,15 +1,12 @@
-import React, { Component } from 'react';
+import React from 'react';
 import MazeConfigControl from './controls/mazeConfigControl';
 
-class App extends Component {
-  render() {
-    return (
-      <div>
-        <MazeConfigControl />,
-        <MazeConfigControl type='ascii' />
-      </div>
-    );
-  }
+const App = () => {
+  return (
+    <div>
+      <MazeConfigControl />
+    </div>
+  );
 }
 
 export default App;

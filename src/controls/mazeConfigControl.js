@@ -1,48 +1,65 @@
-import React, { Component } from 'react';
-import MazeControl from './mazeControl';
+import React, { useState } from "react";
+import MazeControl from "./mazeControl";
 
-export default class mazeConfigControl extends Component {
-  constructor(props) {
-    super(props);
-    
-    this.state = {
-      type: props.type || 'grid',
-      width: props.width || 10,
-      height: props.height || 10
-    };
-    
-    this.onWidth = this.onWidth.bind(this);
-    this.onHeight = this.onHeight.bind(this);
-    this.onRedraw = this.onRedraw.bind(this);
-  }
-  
-  onWidth(e) {
-    this.setState({ width: e.target.value });
-  }
-  
-  onHeight(e) {
-    this.setState({ height: e.target.value });
-  }
+const MazeConfigControl = ({ type, width, height }) => {
+  const [state, setState] = useState({
+    type: type || "grid",
+    width: width || 10,
+    height: height || 10,
+  });
 
-  onRedraw(e) {
-    this.setState({ width: this.state.width, height: this.state.height });
-  }
-  
-  render() {
-    return (
-      <div className='maze-controller'>
-        <form>
-          <fieldset>
-            <label for="width">Width</label>
-            <input type="text" placeholder="Columns" id="width" value={ this.state.width } onChange={ this.onWidth } />
-            <label for="height">Height</label>
-            <input type="text" placeholder="Rows" id="height" value={ this.state.height } onChange={ this.onHeight } />
-            <input className="button button-outline" type="button" value="Redraw" onClick={ this.onRedraw } />
-          </fieldset>
-        </form>
+  const onWidth = (e) => {
+    setState({ ...state, width: e.target.value });
+  };
 
-        <MazeControl width={ this.state.width } height={ this.state.height } type={ this.state.type } />
-      </div>
-    );
-  }
+  const onHeight = (e) => {
+    setState({ ...state, height: e.target.value });
+  };
+
+  const onRedraw = () => {
+    setState({ ...state, grid: [] }); // Re-rendering is triggered by state update
+  };
+
+  return (
+    <div className="maze-controller">
+      <form>
+        <fieldset>
+          <label htmlFor="width">Width</label>
+          <input
+            type="text"
+            placeholder="Columns"
+            id="width"
+            value={state.width}
+            onChange={onWidth}
+          />
+          <label htmlFor="height">Height</label>
+          <input
+            type="text"
+            placeholder="Rows"
+            id="height"
+            value={state.height}
+            onChange={onHeight}
+          />
+          <div className="center">
+            <input
+              className="button button-outline"
+              type="button"
+              value="Redraw"
+              disabled={!state.width || !state.height}
+              onClick={onRedraw}
+            />
+          </div>
+        </fieldset>
+      </form>
+
+      <MazeControl
+        width={state.width}
+        height={state.height}
+        grid={state.grid}
+        type={state.type}
+      />
+    </div>
+  );
 };
+
+export default MazeConfigControl;

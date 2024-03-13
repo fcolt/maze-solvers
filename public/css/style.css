@@ -1,3 +1,9 @@
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .maze {
   margin: 10px 0 10px 0;
 }
@@ -14,6 +20,10 @@
 
 .maze .cell.open {
   background-color: #fff;
+}
+
+.maze .cell.path {
+  background-color: blue
 }
 
 .clear {
