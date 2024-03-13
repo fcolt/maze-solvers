@@ -1,7 +1,7 @@
-Maze Generator
+Maze Solver
 ==============
 
-A simple maze generator, built with React. View the [demo](http://primaryobjects.github.io/maze-generator/) or edit [online](https://plnkr.co/edit/kz6L9fMkJkD9VxyDHsPs?p=preview).
+A simple maze solver/vizualizer for different searching algorithms, built with React, based on [this repo](https://github.com/primaryobjects/maze-generator). View the [demo](https://fcolt.github.io/maze-solvers/).
 
 ```
 _____________________
@@ -17,7 +17,7 @@ _____________________
 |_|_ _ _ _|_ _ _|_ _|
 ```
 
-## How does it work?
+## How does the generator work?
 
 The generator uses [recursive backtracking](http://weblog.jamisbuck.org/2010/12/27/maze-generation-recursive-backtracking) to generate a maze. The algorithm can be described as listed below.
 
@@ -33,8 +33,3 @@ The maze generator UI is built with Javascript, [React](https://facebook.github.
 ## License
 
 MIT
-
-## Author
-
-Kory Becker
-http://www.primaryobjects.com/kory-becker

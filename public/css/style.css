@@ -23,7 +23,10 @@
 }
 
 .maze .cell.path {
-  background-color: blue
+  background-color: rgb(7, 176, 232);
+}
+.maze .cell.solution {
+  background-color: blue;
 }
 
 .clear {

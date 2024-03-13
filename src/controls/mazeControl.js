@@ -7,6 +7,7 @@ const CELL_TYPE_TO_JSX = {
   [MazeGenerator.CELL.CLOSED]: <div className="cell closed"></div>,
   [MazeGenerator.CELL.CLEAR]: <div className="clear"></div>,
   [MazeGenerator.CELL.PATH]: <div className="cell path"></div>,
+  [MazeGenerator.CELL.SOLUTION]: <div className="cell solution"></div>,
 };
 
 const MazeControl = (props) => {
@@ -32,31 +33,37 @@ const MazeControl = (props) => {
     }
   };
 
-
-  const carveSolution = async (solutionPath, delay) => {
+  const carveSolution = async ([solutionPath, visitedNodes], watch) => {
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
+    
     const gridElements = MazeGenerator.gridElements();
-    const gridElementsSolved = MazeGenerator.gridElements(solutionPath);
+    const gridElementsSolved = MazeGenerator.gridElements(visitedNodes);
 
-    for (const coords of solutionPath.reverse()) {
+    for (const coords of visitedNodes) {
       gridElementsSolved
         .map((el, idx) => {
           return { el, idx };
         })
         .filter(({ el }) => el.x === coords.x && el.y === coords.y)
-        .forEach(({ idx }) => {
-          gridElements[idx] = MazeGenerator.CELL.PATH;
+        .forEach(({ el, idx }) => {
+          if (solutionPath.some(({ x, y }) => x === el.x && y === el.y)) {
+            gridElements[idx] = MazeGenerator.CELL.SOLUTION;
+          } else {
+            gridElements[idx] = MazeGenerator.CELL.PATH;
+          }
         });
-      if (delay) {
-        await wait(10);
+      if (watch) {
+        await wait(props.delay);
         setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
       }
     }
 
-    if (!delay) {
+    if (!watch) {
       setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
     }
+
+    gridElements[gridElements.length - width * 2 - 5] = MazeGenerator.CELL.SOLUTION;
+    setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
   };
 
   useEffect(() => {
@@ -83,6 +90,20 @@ const MazeControl = (props) => {
           type="button"
           value="Watch DFS"
           onClick={() => carveSolution(MazeSolver.solveDfs(), true)}
+        />
+      </div>
+      <div className="center">
+        <input
+          className="button button-outline"
+          type="button"
+          value="Solve with BFS"
+          onClick={() => carveSolution(MazeSolver.solveBfs(), false)}
+        />
+        <input
+          className="button button-outline"
+          type="button"
+          value="Watch BFS"
+          onClick={() => carveSolution(MazeSolver.solveBfs(), true)}
         />
       </div>
       <div className="maze center">
