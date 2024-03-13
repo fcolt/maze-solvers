@@ -32,10 +32,10 @@ const MazeControl = (props) => {
     }
   };
 
-  const carveDfsSolution = async () => {
+
+  const carveSolution = async (solutionPath, delay) => {
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    const solutionPath = MazeSolver.solveDfs();
     const gridElements = MazeGenerator.gridElements();
     const gridElementsSolved = MazeGenerator.gridElements(solutionPath);
 
@@ -48,7 +48,13 @@ const MazeControl = (props) => {
         .forEach(({ idx }) => {
           gridElements[idx] = MazeGenerator.CELL.PATH;
         });
-      await wait(10);
+      if (delay) {
+        await wait(10);
+        setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
+      }
+    }
+
+    if (!delay) {
       setGrid(gridElements.map((el) => CELL_TYPE_TO_JSX[el]));
     }
   };
@@ -69,8 +75,14 @@ const MazeControl = (props) => {
         <input
           className="button button-outline"
           type="button"
-          value="Sovlve (DFS)"
-          onClick={carveDfsSolution}
+          value="Solve with DFS"
+          onClick={() => carveSolution(MazeSolver.solveDfs(), false)}
+        />
+        <input
+          className="button button-outline"
+          type="button"
+          value="Watch DFS"
+          onClick={() => carveSolution(MazeSolver.solveDfs(), true)}
         />
       </div>
       <div className="maze center">
