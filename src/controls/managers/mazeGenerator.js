@@ -13,6 +13,7 @@ const MazeGenerator = {
     CLOSED: 0,
     CLEAR: -1,
     PATH: 2,
+    SOLUTION: 3
   },
 
   initialize: function (width, height) {
