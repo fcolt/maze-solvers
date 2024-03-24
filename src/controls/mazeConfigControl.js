@@ -52,7 +52,7 @@ const MazeConfigControl = ({ type, width, height, delay }) => {
             max="1000"
             value={state.delay}
             onChange={onDelay}
-            class="slider"
+            className="slider"
             id="delay"
           />
           <div className="center">

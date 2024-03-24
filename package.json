@@ -4,6 +4,7 @@
   "private": true,
   "homepage": "http://fcolt.github.io/maze-solvers",
   "dependencies": {
+    "@datastructures-js/priority-queue": "^6.3.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
