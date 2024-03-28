@@ -35,7 +35,7 @@ const MazeControl = (props) => {
 
   const carveSolution = async ([solutionPath, visitedNodes], watch) => {
     const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-    
+
     const gridElements = MazeGenerator.gridElements();
     const gridElementsSolved = MazeGenerator.gridElements(visitedNodes);
 
@@ -106,6 +106,19 @@ const MazeControl = (props) => {
           onClick={() => carveSolution(MazeSolver.solveBfs(), true)}
         />
       </div>
+      <div className="center">
+        <input
+          className="button button-outline"
+          type="button"
+          value="Solve with A*"
+          onClick={() => carveSolution(MazeSolver.solveAStar(), false)}
+        />
+        <input
+          className="button button-outline"
+          type="button"
+          value="Watch A*"
+          onClick={() => carveSolution(MazeSolver.solveAStar(), true)}
+        /></div>
       <div className="maze center">
         <div
           className={
